@@ -1,16 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Download, RotateCcw, ZoomIn, RefreshCw, Sparkles, HelpCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Download,
+  RotateCcw,
+  ZoomIn,
+  RefreshCw,
+  Sparkles,
+  HelpCircle,
+} from "lucide-react";
 
 const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
   const containerRef = useRef(null);
   const productRef = useRef(null);
-  
+
   // Transform States
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [opacity, setOpacity] = useState(1);
-  const [blendMode, setBlendMode] = useState('multiply'); // 'normal' or 'multiply' (filters white background)
+  const [blendMode, setBlendMode] = useState("multiply"); // 'normal' or 'multiply' (filters white background)
 
   // Dragging State variables
   const [isDragging, setIsDragging] = useState(false);
@@ -25,15 +32,15 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
       setPosition({ x: product.defaultOffset?.x || 0, y: verticalOffset });
       setRotation(0);
       setOpacity(1);
-      
+
       // Auto-set blend mode based on category
       // Accessories and hats benefit from normal blend if transparent,
       // but white background items like flat-lays look best with multiply.
       // Since our Unsplash products are on white/light grey, 'multiply' blends them perfectly onto clothes!
-      if (product.category === 'Accessories' || product.category === 'Hats') {
-        setBlendMode('multiply');
+      if (product.category === "Accessories" || product.category === "Hats") {
+        setBlendMode("multiply");
       } else {
-        setBlendMode('multiply'); // multiply is safest to blend white folds
+        setBlendMode("multiply"); // multiply is safest to blend white folds
       }
     }
   }, [product]);
@@ -42,10 +49,13 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
   const handleReset = () => {
     if (product) {
       setScale(product.defaultScale || 0.6);
-      setPosition({ x: product.defaultOffset?.x || 0, y: product.defaultOffset?.y || 50 });
+      setPosition({
+        x: product.defaultOffset?.x || 0,
+        y: product.defaultOffset?.y || 50,
+      });
       setRotation(0);
       setOpacity(1);
-      setBlendMode('multiply');
+      setBlendMode("multiply");
     }
   };
 
@@ -53,26 +63,26 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
   const handleStart = (e) => {
     e.preventDefault();
     setIsDragging(true);
-    
+
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    
+
     dragStart.current = {
       x: clientX - position.x,
-      y: clientY - position.y
+      y: clientY - position.y,
     };
   };
 
   // Mouse Move / Touch Move Handler
   const handleMove = (e) => {
     if (!isDragging) return;
-    
+
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
     setPosition({
       x: clientX - dragStart.current.x,
-      y: clientY - dragStart.current.y
+      y: clientY - dragStart.current.y,
     });
   };
 
@@ -94,16 +104,16 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
       }
     };
 
-    window.addEventListener('mousemove', handleGlobalMove);
-    window.addEventListener('mouseup', handleGlobalEnd);
-    window.addEventListener('touchmove', handleGlobalMove, { passive: false });
-    window.addEventListener('touchend', handleGlobalEnd);
+    window.addEventListener("mousemove", handleGlobalMove);
+    window.addEventListener("mouseup", handleGlobalEnd);
+    window.addEventListener("touchmove", handleGlobalMove, { passive: false });
+    window.addEventListener("touchend", handleGlobalEnd);
 
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMove);
-      window.removeEventListener('mouseup', handleGlobalEnd);
-      window.removeEventListener('touchmove', handleGlobalMove);
-      window.removeEventListener('touchend', handleGlobalEnd);
+      window.removeEventListener("mousemove", handleGlobalMove);
+      window.removeEventListener("mouseup", handleGlobalEnd);
+      window.removeEventListener("touchmove", handleGlobalMove);
+      window.removeEventListener("touchend", handleGlobalEnd);
     };
   }, [isDragging, position]);
 
@@ -121,8 +131,8 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
       prodImg.src = product.image;
 
       prodImg.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
 
         // Target canvas resolution matches user image natural resolution
         const naturalWidth = bgImg.naturalWidth;
@@ -147,8 +157,8 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
 
         // Target coordinate calculations
         // Translate to the center of the garment
-        const px = position.x + (viewportWidth / 2);
-        const py = position.y + (viewportHeight / 2);
+        const px = position.x + viewportWidth / 2;
+        const py = position.y + viewportHeight / 2;
         const cxCanvas = px * scaleX;
         const cyCanvas = py * scaleY;
 
@@ -160,31 +170,31 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
         ctx.globalAlpha = opacity;
 
         // Apply Blend Mode (e.g. multiply to eliminate whites)
-        if (blendMode === 'multiply') {
-          ctx.globalCompositeOperation = 'multiply';
+        if (blendMode === "multiply") {
+          ctx.globalCompositeOperation = "multiply";
         } else {
-          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalCompositeOperation = "source-over";
         }
 
         ctx.save();
         ctx.translate(cxCanvas, cyCanvas);
         ctx.rotate((rotation * Math.PI) / 180);
-        
+
         // Draw the product centered at translation coordinates
         ctx.drawImage(prodImg, -wCanvas / 2, -hCanvas / 2, wCanvas, hCanvas);
         ctx.restore();
 
         // Reset blend/alpha states
-        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = 1.0;
 
         // Trigger Download Anchor
-        const dataUrl = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = `grwify-tryon-${product.id}.png`;
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.download = `growify-tryon-${product.id}.png`;
         link.href = dataUrl;
         link.click();
-        
+
         if (onDownloadComplete) {
           onDownloadComplete();
         }
@@ -196,7 +206,7 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
     <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
       {/* Left Column: Interactive Screen Canvas viewport */}
       <div className="w-full lg:w-3/5 flex flex-col items-center">
-        <div 
+        <div
           ref={containerRef}
           className="relative w-full aspect-[3/4] rounded-3xl overflow-hidden bg-slate-900 border border-slate-900 shadow-2xl flex items-center justify-center select-none"
         >
@@ -215,9 +225,9 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
             style={{
               transform: `translate(${position.x}px, ${position.y}px) rotate(${rotation}deg) scale(${scale})`,
               opacity: opacity,
-              mixBlendMode: blendMode === 'multiply' ? 'multiply' : 'normal',
-              width: '55%',
-              cursor: isDragging ? 'grabbing' : 'grab',
+              mixBlendMode: blendMode === "multiply" ? "multiply" : "normal",
+              width: "55%",
+              cursor: isDragging ? "grabbing" : "grab",
             }}
             className="absolute z-30 flex items-center justify-center transition-shadow select-none"
           >
@@ -241,8 +251,12 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
       {/* Right Column: Custom sliders and actions panel */}
       <div className="w-full lg:w-2/5 glass-premium p-6 rounded-3xl border border-slate-900 text-left space-y-6">
         <div className="border-b border-slate-900 pb-4">
-          <span className="text-[10px] font-bold tracking-widest text-purple-400 uppercase">ACTIVE GARMENT</span>
-          <h3 className="text-xl font-bold text-white leading-tight mt-1">{product.name}</h3>
+          <span className="text-[10px] font-bold tracking-widest text-purple-400 uppercase">
+            ACTIVE GARMENT
+          </span>
+          <h3 className="text-xl font-bold text-white leading-tight mt-1">
+            {product.name}
+          </h3>
           <p className="text-xs text-slate-400 mt-1">{product.description}</p>
         </div>
 
@@ -251,8 +265,12 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
           {/* Scale Slider */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
-              <span className="flex items-center gap-1"><ZoomIn className="h-3.5 w-3.5" /> Garment Scale</span>
-              <span className="text-purple-400 font-bold">{Math.round(scale * 100)}%</span>
+              <span className="flex items-center gap-1">
+                <ZoomIn className="h-3.5 w-3.5" /> Garment Scale
+              </span>
+              <span className="text-purple-400 font-bold">
+                {Math.round(scale * 100)}%
+              </span>
             </div>
             <input
               type="range"
@@ -268,7 +286,9 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
           {/* Rotation Slider */}
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
-              <span className="flex items-center gap-1"><RotateCcw className="h-3.5 w-3.5" /> Rotation</span>
+              <span className="flex items-center gap-1">
+                <RotateCcw className="h-3.5 w-3.5" /> Rotation
+              </span>
               <span className="text-purple-400 font-bold">{rotation}°</span>
             </div>
             <input
@@ -286,7 +306,9 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
           <div className="space-y-2">
             <div className="flex justify-between items-center text-xs font-semibold text-slate-400">
               <span>Fabric Opacity</span>
-              <span className="text-purple-400 font-bold">{Math.round(opacity * 100)}%</span>
+              <span className="text-purple-400 font-bold">
+                {Math.round(opacity * 100)}%
+              </span>
             </div>
             <input
               type="range"
@@ -301,24 +323,26 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
 
           {/* Background Blend Filter Mode (premium white-removal control) */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-400">Background Blending</label>
+            <label className="block text-xs font-semibold text-slate-400">
+              Background Blending
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => setBlendMode('multiply')}
+                onClick={() => setBlendMode("multiply")}
                 className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors ${
-                  blendMode === 'multiply'
-                    ? 'bg-purple-600 border-purple-500 text-white'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                  blendMode === "multiply"
+                    ? "bg-purple-600 border-purple-500 text-white"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
                 }`}
               >
                 Auto Blend (Clean)
               </button>
               <button
-                onClick={() => setBlendMode('normal')}
+                onClick={() => setBlendMode("normal")}
                 className={`py-2 px-3 rounded-xl text-xs font-bold border transition-colors ${
-                  blendMode === 'normal'
-                    ? 'bg-purple-600 border-purple-500 text-white'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                  blendMode === "normal"
+                    ? "bg-purple-600 border-purple-500 text-white"
+                    : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white"
                 }`}
               >
                 No Blending (Solid)
@@ -336,7 +360,7 @@ const TryOnCanvas = ({ userImage, product, onDownloadComplete }) => {
             <Download className="h-5 w-5" />
             Download Outfit PNG
           </button>
-          
+
           <button
             onClick={handleReset}
             className="w-full py-3.5 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-850 hover:border-slate-800 font-semibold text-slate-300 hover:text-white active:scale-98 transition-all flex items-center justify-center gap-2"

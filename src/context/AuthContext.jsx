@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, googleProvider, hasFirebaseConfig } from '../services/firebase';
-import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { auth, googleProvider, hasFirebaseConfig } from "../services/firebase";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext(null);
 
@@ -12,27 +12,33 @@ export const AuthProvider = ({ children }) => {
   // Synchronize authentication state
   useEffect(() => {
     if (hasFirebaseConfig && auth) {
-      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-        if (firebaseUser) {
-          setUser({
-            uid: firebaseUser.uid,
-            displayName: firebaseUser.displayName,
-            email: firebaseUser.email,
-            photoURL: firebaseUser.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${firebaseUser.email}`,
-            provider: 'firebase'
-          });
-        } else {
-          setUser(null);
-        }
-        setLoading(false);
-      }, (err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        (firebaseUser) => {
+          if (firebaseUser) {
+            setUser({
+              uid: firebaseUser.uid,
+              displayName: firebaseUser.displayName,
+              email: firebaseUser.email,
+              photoURL:
+                firebaseUser.photoURL ||
+                `https://api.dicebear.com/7.x/adventurer/svg?seed=${firebaseUser.email}`,
+              provider: "firebase",
+            });
+          } else {
+            setUser(null);
+          }
+          setLoading(false);
+        },
+        (err) => {
+          setError(err.message);
+          setLoading(false);
+        },
+      );
       return unsubscribe;
     } else {
       // LocalStorage persistence for simulation mode
-      const savedUser = localStorage.getItem('grwify_user');
+      const savedUser = localStorage.getItem("growify_user");
       if (savedUser) {
         setUser(JSON.parse(savedUser));
       }
@@ -52,8 +58,10 @@ export const AuthProvider = ({ children }) => {
             uid: u.uid,
             displayName: u.displayName,
             email: u.email,
-            photoURL: u.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${u.email}`,
-            provider: 'firebase'
+            photoURL:
+              u.photoURL ||
+              `https://api.dicebear.com/7.x/adventurer/svg?seed=${u.email}`,
+            provider: "firebase",
           };
           setUser(profile);
           return profile;
@@ -73,9 +81,9 @@ export const AuthProvider = ({ children }) => {
         const top = window.screenY + (window.outerHeight - height) / 2;
 
         const popup = window.open(
-          '',
-          'Google Accounts Login',
-          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+          "",
+          "Google Accounts Login",
+          `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`,
         );
 
         if (!popup) {
@@ -111,7 +119,7 @@ export const AuthProvider = ({ children }) => {
               </div>
 
               <h2 class="text-2xl font-normal text-center text-slate-800 mb-1">Sign in</h2>
-              <p class="text-sm text-center text-slate-600 mb-8">to continue to <span class="font-medium text-purple-600">grwify</span></p>
+              <p class="text-sm text-center text-slate-600 mb-8">to continue to <span class="font-medium text-purple-600">growify</span></p>
 
               <!-- Account List Selection -->
               <div class="space-y-3 mb-6">
@@ -201,17 +209,17 @@ export const AuthProvider = ({ children }) => {
 
         // Listen for communication from popup window
         const messageListener = (event) => {
-          if (event.data && event.data.type === 'MOCK_GOOGLE_SIGN_IN_SUCCESS') {
+          if (event.data && event.data.type === "MOCK_GOOGLE_SIGN_IN_SUCCESS") {
             const u = event.data.user;
             setUser(u);
-            localStorage.setItem('grwify_user', JSON.stringify(u));
+            localStorage.setItem("growify_user", JSON.stringify(u));
             setLoading(false);
-            window.removeEventListener('message', messageListener);
+            window.removeEventListener("message", messageListener);
             resolve(u);
           }
         };
 
-        window.addEventListener('message', messageListener);
+        window.addEventListener("message", messageListener);
 
         // Check if popup was closed without action
         const checkClosed = setInterval(() => {
@@ -220,7 +228,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
             // Wait slightly in case user logged in right before closing
             setTimeout(() => {
-              window.removeEventListener('message', messageListener);
+              window.removeEventListener("message", messageListener);
             }, 1000);
           }
         }, 500);
@@ -242,14 +250,16 @@ export const AuthProvider = ({ children }) => {
         });
     } else {
       setUser(null);
-      localStorage.removeItem('grwify_user');
+      localStorage.removeItem("growify_user");
       setLoading(false);
       return Promise.resolve();
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, loginWithGoogle, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading, error, loginWithGoogle, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

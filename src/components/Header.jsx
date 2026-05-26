@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, Shirt, Image, Shield, Menu, X, ChevronDown } from 'lucide-react';
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+  LogOut,
+  LayoutDashboard,
+  Shirt,
+  Image,
+  Shield,
+  Menu,
+  X,
+  ChevronDown,
+} from "lucide-react";
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -13,7 +22,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/');
+      navigate("/");
     } catch (err) {
       console.error("Logout failed:", err);
     }
@@ -22,13 +31,13 @@ const Header = () => {
   const isActive = (path) => location.pathname === path;
 
   const navLinks = [
-    { name: 'Products', path: '/select', icon: Shirt, protected: true },
-    { name: 'Photo Upload', path: '/upload', icon: Image, protected: true },
-    { name: 'Try-On', path: '/tryon', icon: Shirt, protected: true },
-    { name: 'Admin Panel', path: '/admin', icon: Shield, protected: false },
+    { name: "Products", path: "/select", icon: Shirt, protected: true },
+    { name: "Photo Upload", path: "/upload", icon: Image, protected: true },
+    { name: "Try-On", path: "/tryon", icon: Shirt, protected: true },
+    { name: "Admin Panel", path: "/admin", icon: Shield, protected: false },
   ];
 
-  const visibleLinks = navLinks.filter(link => !link.protected || user);
+  const visibleLinks = navLinks.filter((link) => !link.protected || user);
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-slate-900 px-4 lg:px-8 py-3.5">
@@ -39,7 +48,7 @@ const Header = () => {
             <Shirt className="h-5 w-5 text-white" />
           </span>
           <span className="text-xl font-black bg-gradient-to-r from-white via-slate-100 to-purple-400 bg-clip-text text-transparent tracking-tight">
-            grwify
+            growify
           </span>
         </Link>
 
@@ -54,8 +63,8 @@ const Header = () => {
                 to={link.path}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                   active
-                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/40 border border-transparent'
+                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                    : "text-slate-300 hover:text-white hover:bg-slate-800/40 border border-transparent"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -78,17 +87,26 @@ const Header = () => {
                   alt={user.displayName}
                   className="h-8 w-8 rounded-lg object-cover ring-2 ring-purple-500/20"
                 />
-                <span className="text-xs font-semibold text-slate-300">{user.displayName}</span>
-                <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                <span className="text-xs font-semibold text-slate-300">
+                  {user.displayName}
+                </span>
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-300 ${profileDropdownOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               {profileDropdownOpen && (
                 <>
-                  <div className="fixed inset-0 z-10" onClick={() => setProfileDropdownOpen(false)}></div>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  ></div>
                   <div className="absolute right-0 mt-2.5 w-56 rounded-xl border border-slate-800 bg-slate-900/95 backdrop-blur-xl p-2 shadow-2xl z-20 animate-in fade-in slide-in-from-top-3 duration-250">
                     <div className="px-3 py-2 border-b border-slate-800/50 mb-1.5">
                       <p className="text-xs text-slate-500">Signed in as</p>
-                      <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
+                      <p className="text-sm font-semibold text-slate-200 truncate">
+                        {user.email}
+                      </p>
                     </div>
 
                     <Link
@@ -129,7 +147,11 @@ const Header = () => {
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="md:hidden p-2 rounded-lg hover:bg-slate-800/60 text-slate-300 hover:text-white transition-colors"
         >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
         </button>
       </div>
 
@@ -146,8 +168,8 @@ const Header = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   active
-                    ? 'bg-purple-500/10 text-purple-400 border border-purple-500/10'
-                    : 'text-slate-300 hover:bg-slate-850 hover:text-white'
+                    ? "bg-purple-500/10 text-purple-400 border border-purple-500/10"
+                    : "text-slate-300 hover:bg-slate-850 hover:text-white"
                 }`}
               >
                 <Icon className="h-4.5 w-4.5" />
@@ -166,8 +188,12 @@ const Header = () => {
                     className="h-9 w-9 rounded-lg object-cover"
                   />
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-slate-200">{user.displayName}</p>
-                    <p className="text-xs text-slate-500 truncate max-w-[150px]">{user.email}</p>
+                    <p className="text-sm font-semibold text-slate-200">
+                      {user.displayName}
+                    </p>
+                    <p className="text-xs text-slate-500 truncate max-w-[150px]">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
                 <button
